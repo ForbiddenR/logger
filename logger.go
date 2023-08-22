@@ -23,6 +23,7 @@ func InitLogger() *Logger {
 
 	logger.Logger = zap.New(logger.cores(),
 		zap.AddCaller(),
+		zap.AddCallerSkip(1),
 	)
 
 	return logger
