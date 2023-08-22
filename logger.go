@@ -21,10 +21,7 @@ func InitLogger() *Logger {
 		},
 	}
 
-	logger.Logger = zap.New(logger.cores(),
-		zap.AddCaller(),
-		zap.AddCallerSkip(1),
-	)
+	logger.Logger = zap.New(logger.cores())
 
 	return logger
 }
