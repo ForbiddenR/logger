@@ -9,6 +9,20 @@ import (
 
 var consuleWS = zapcore.Lock(os.Stdout)
 
+type DefaultLogger zap.Logger
+
+func InitDefaultLogger() *DefaultLogger {
+	return (*DefaultLogger)(zap.New(cores()))
+}
+
+func cores() zapcore.Core {
+	cores := make([]zapcore.Core, 0)
+	
+	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel))
+
+	return zapcore.NewTee(cores...)
+}
+
 type Logger struct {
 	*zap.Logger
 	opts *Options
