@@ -12,7 +12,9 @@ var consuleWS = zapcore.Lock(os.Stdout)
 type DefaultLogger = zap.Logger
 
 func InitDefaultLogger() *DefaultLogger {
-	return zap.New(cores())
+	return zap.New(cores(),
+	zap.AddCaller(),	
+)
 }
 
 func cores() zapcore.Core {
