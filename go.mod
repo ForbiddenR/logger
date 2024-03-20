@@ -1,6 +1,6 @@
 module github.com/ForbiddenR/logger
 
-go 1.21.0
+go 1.20
 
 require go.uber.org/zap v1.25.0
 
