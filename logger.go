@@ -9,17 +9,18 @@ import (
 
 var consuleWS = zapcore.Lock(os.Stdout)
 
-type DefaultLogger zap.Logger
+type DefaultLogger = zap.Logger
+
+type Field = zap.Field
 
 func InitDefaultLogger() *DefaultLogger {
-	return (*DefaultLogger)(zap.New(cores()))
+	return zap.New(cores())
 }
 
 func cores() zapcore.Core {
-	cores := make([]zapcore.Core, 0)
-	
-	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel))
-
+	cores := []zapcore.Core{
+		zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel),
+	}
 	return zapcore.NewTee(cores...)
 }
 
@@ -62,7 +63,7 @@ func (l *Logger) Panic(template string, args ...any) {
 
 func (l *Logger) cores() zapcore.Core {
 	cores := make([]zapcore.Core, 0)
-	
+
 	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel))
 
 	return zapcore.NewTee(cores...)
