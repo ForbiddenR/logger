@@ -13,6 +13,7 @@ type DefaultLogger = zap.Logger
 
 func InitDefaultLogger() *DefaultLogger {
 	return zap.New(cores(),
+		zap.AddCaller(),
 	)
 }
 
