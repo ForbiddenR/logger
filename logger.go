@@ -41,14 +41,17 @@ type Logger struct {
 	opts *Options
 }
 
-func InitLogger() *Logger {
+func InitLogger(hooks ...func(zapcore.Entry) error) *Logger {
 	logger := &Logger{
 		opts: &Options{
 			level: zap.DebugLevel,
 		},
 	}
-
-	logger.Logger = zap.New(logger.cores())
+	if len(hooks) > 0 {
+		logger.Logger = zap.New(logger.cores(), zap.Hooks(hooks...))
+	} else {
+		logger.Logger = zap.New(logger.cores())
+	}
 
 	return logger
 }
