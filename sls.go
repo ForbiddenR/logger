@@ -10,3 +10,11 @@ type SLSHook interface {
 }
 
 var slsHook SLSHook
+
+
+func NewSLSHook(hook SLSHook) {
+	if hook == nil {
+		panic("null hook is illegal")
+	}
+	slsHook = hook
+}
