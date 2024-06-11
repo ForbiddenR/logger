@@ -13,13 +13,19 @@ type DefaultLogger = zap.Logger
 
 func InitYXLogger() *DefaultLogger {
 	return zap.New(cores(),
-	zap.AddCaller(),
-	zap.AddStacktrace(zapcore.WarnLevel))
+		zap.AddCaller(),
+		zap.AddStacktrace(zapcore.WarnLevel))
 }
 
 func InitDefaultLogger() *DefaultLogger {
-	return zap.New(cores(),
+	options := []zap.Option{
 		zap.AddCaller(),
+	}
+	if slsHook != nil {
+		options = append(options, zap.Hooks(zapHook))
+	}
+	return zap.New(cores(),
+		options...,
 	)
 }
 
@@ -28,6 +34,13 @@ func cores() zapcore.Core {
 		zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel),
 	}
 	return zapcore.NewTee(cores...)
+}
+
+func zapHook(e zapcore.Entry) error {
+	if e.Level >= slsHook.Level() {
+		return slsHook.Fire(e)
+	}
+	return nil
 }
 
 type Logger struct {
