@@ -47,7 +47,7 @@ func InitLogger(hooks ...func(zapcore.Entry) error) *Logger {
 			level: zap.DebugLevel,
 		},
 	}
-	if len(hooks) > 0 {
+	if len(hooks) > 0 && hooks[0] != nil {
 		logger.Logger = zap.New(logger.cores(), zap.Hooks(hooks...))
 	} else {
 		logger.Logger = zap.New(logger.cores())
