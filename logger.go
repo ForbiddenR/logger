@@ -19,7 +19,7 @@ func InitYXLogger() *DefaultLogger {
 
 func InitDefaultLogger(hooks ...func(zapcore.Entry) error) *DefaultLogger {
 	options := []zap.Option{
-		zap.AddCaller(),
+		// zap.AddCaller(),
 	}
 	if len(hooks) > 0 {
 		options = append(options, zap.Hooks(hooks...))
