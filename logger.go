@@ -66,6 +66,18 @@ func (l *Logger) Debugf(sn, template string, args ...any) {
 	l.Logger.Debug(fmt.Sprintf(template, args...), zap.String("sn", sn))
 }
 
+func (l *Logger) Warnf(sn, template string, args ...any) {
+	l.Logger.Warn(fmt.Sprintf(template, args...), zap.String("sn", sn))
+}
+
+func (l *Logger) Infof(sn, template string, args ...any) {
+	l.Logger.Info(fmt.Sprintf(template, args...), zap.String("sn", sn))
+}
+
+func (l *Logger) Errorf(sn, template string, args ...any) {
+	l.Logger.Error(fmt.Sprintf(template, args...), zap.String("sn", sn))
+}
+
 func (l *Logger) Debug(template string, args ...any) {
 	l.Sugar().Debugf(template, args...)
 }
