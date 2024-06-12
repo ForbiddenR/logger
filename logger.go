@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"go.uber.org/zap"
@@ -59,6 +60,10 @@ func InitLogger(core zapcore.Core) *Logger {
 	// }
 
 	return logger
+}
+
+func (l *Logger) Debugf(sn, template string, args ...any) {
+	l.Logger.Debug(fmt.Sprintf(template, args...), zap.String("sn", sn))
 }
 
 func (l *Logger) Debug(template string, args ...any) {
