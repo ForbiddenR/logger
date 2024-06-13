@@ -42,23 +42,13 @@ type Logger struct {
 	opts *Options
 }
 
-func InitLogger(core zapcore.Core) *Logger {
+func InitLogger(level zapcore.Level, cs ...zapcore.Core) *Logger {
 	logger := &Logger{
 		opts: &Options{
-			level: zap.DebugLevel,
+			level: level,
 		},
 	}
-	if core != nil {
-		logger.Logger = zap.New(core)
-	}else {
-		logger.Logger = zap.New(logger.cores())
-	}
-	// if len(hooks) > 0 && hooks[0] != nil {
-	// 	logger.Logger = zap.New(logger.cores(), zap.Hooks(hooks...))
-	// } else {
-	// 	logger.Logger = zap.New(logger.cores())
-	// }
-
+	logger.Logger = zap.New(logger.cores(cs...))
 	return logger
 }
 
@@ -98,10 +88,11 @@ func (l *Logger) Panic(template string, args ...any) {
 	l.Sugar().Panicf(template, args...)
 }
 
-func (l *Logger) cores() zapcore.Core {
-	cores := make([]zapcore.Core, 0)
-
-	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, zap.DebugLevel))
-
+func (l *Logger) cores(cs ...zapcore.Core) zapcore.Core {
+	cores := make([]zapcore.Core, 0, 1+len(cs))
+	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, l.opts.level))
+	if len(cs) > 0 {
+		cores = append(cores, cs...)
+	}
 	return zapcore.NewTee(cores...)
 }
