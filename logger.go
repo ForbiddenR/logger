@@ -90,7 +90,8 @@ func (l *Logger) Panic(template string, args ...any) {
 
 func (l *Logger) cores(cs ...zapcore.Core) zapcore.Core {
 	cores := make([]zapcore.Core, 0, 1+len(cs))
-	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, l.opts.level))
+	defaultLoggerLevel = zap.NewAtomicLevelAt(l.opts.level)
+	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, defaultLoggerLevel))
 	if len(cs) > 0 {
 		cores = append(cores, cs...)
 	}
