@@ -1,12 +1,15 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+const NonLevel zapcore.Level = 99
 
 var consuleWS = zapcore.Lock(os.Stdout)
 
@@ -39,11 +42,15 @@ func cores() zapcore.Core {
 
 type Logger struct {
 	*zap.Logger
-	opts *Options
+	enabler     zap.AtomicLevel
+	slsProducer Producer
+	opts        *Options
 }
 
-func InitLogger(level zapcore.Level, cs ...zapcore.Core) *Logger {
+func InitLogger(level zapcore.Level, enabler zap.AtomicLevel, producer Producer, cs ...zapcore.Core) *Logger {
 	logger := &Logger{
+		enabler:     enabler,
+		slsProducer: producer,
 		opts: &Options{
 			level: level,
 		},
@@ -52,20 +59,44 @@ func InitLogger(level zapcore.Level, cs ...zapcore.Core) *Logger {
 	return logger
 }
 
-func (l *Logger) Debugf(sn, template string, args ...any) {
-	l.Logger.Debug(fmt.Sprintf(template, args...), zap.String("sn", sn))
+func (l *Logger) ChangeProducerLevel(level zapcore.Level) {
+	l.enabler.SetLevel(level)
 }
 
-func (l *Logger) Warnf(sn, template string, args ...any) {
-	l.Logger.Warn(fmt.Sprintf(template, args...), zap.String("sn", sn))
+func (l *Logger) ChangeLoggerLevel(level zapcore.Level) {
+	l.opts.mutableLevel.SetLevel(level)
 }
 
-func (l *Logger) Infof(sn, template string, args ...any) {
-	l.Logger.Info(fmt.Sprintf(template, args...), zap.String("sn", sn))
+func (l *Logger) Close() {
+	l.slsProducer.Close(100000)
 }
 
-func (l *Logger) Errorf(sn, template string, args ...any) {
-	l.Logger.Error(fmt.Sprintf(template, args...), zap.String("sn", sn))
+func (l *Logger) Debugf(ctx context.Context, template string, args ...any) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, fmt.Sprintf(template, args...))
+	}
+	l.Sugar().Debugf(template, args...)
+}
+
+func (l *Logger) Infof(ctx context.Context, template string, args ...any) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, fmt.Sprintf(template, args...))
+	}
+	l.Sugar().Debugf(template, args...)
+}
+
+func (l *Logger) Warnf(ctx context.Context, template string, args ...any) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.WarnLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.WarnLevel, fmt.Sprintf(template, args...))
+	}
+	l.Sugar().Warnf(template, args...)
+}
+
+func (l *Logger) Errorf(ctx context.Context, template string, args ...any) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.ErrorLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.ErrorLevel, fmt.Sprintf(template, args...))
+	}
+	l.Sugar().Errorf(template, args...)
 }
 
 func (l *Logger) Debug(template string, args ...any) {
@@ -90,8 +121,8 @@ func (l *Logger) Panic(template string, args ...any) {
 
 func (l *Logger) cores(cs ...zapcore.Core) zapcore.Core {
 	cores := make([]zapcore.Core, 0, 1+len(cs))
-	defaultLoggerLevel = zap.NewAtomicLevelAt(l.opts.level)
-	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, defaultLoggerLevel))
+	l.opts.mutableLevel = zap.NewAtomicLevelAt(l.opts.level)
+	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(newConsoleEncoderConfig()), consuleWS, l.opts.mutableLevel))
 	if len(cs) > 0 {
 		cores = append(cores, cs...)
 	}

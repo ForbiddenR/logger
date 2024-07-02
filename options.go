@@ -1,9 +1,11 @@
 package logger
 
-import "go.uber.org/zap/zapcore"
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
 
 type Options struct {
-	// appName    string
-	// appVersion string
-	level      zapcore.Level
+	level        zapcore.Level
+	mutableLevel zap.AtomicLevel
 }
