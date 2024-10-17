@@ -22,7 +22,7 @@ func newConsoleEncoderConfig() zapcore.EncoderConfig {
 		EncodeTime:     timeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
 		EncodeCaller:   zapcore.FullCallerEncoder,
-		ConsoleSeparator: " ",
+		ConsoleSeparator: "  ",
 	}
 }
 
