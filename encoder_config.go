@@ -21,7 +21,7 @@ func newConsoleEncoderConfig() zapcore.EncoderConfig {
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
 		EncodeTime:     timeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.FullCallerEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
 		ConsoleSeparator: "  ",
 	}
 }
