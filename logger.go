@@ -75,7 +75,9 @@ func (l *Logger) Event(ctx context.Context, event Event) {
 	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
 		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, event.Short())
 	}
-	l.Info(event.Long())
+	if l.Logger.Level().Enabled(zapcore.DebugLevel) {
+		l.Info(event.Long())
+	}
 }
 
 func (l *Logger) Debugf(ctx context.Context, template string, args ...any) {
