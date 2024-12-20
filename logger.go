@@ -71,6 +71,13 @@ func (l *Logger) Close() {
 	l.slsProducer.Close(100000)
 }
 
+func (l *Logger) Event(ctx context.Context, event Event) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, event.Short())
+	}
+	l.Info(event.Long())
+}
+
 func (l *Logger) Debugf(ctx context.Context, template string, args ...any) {
 	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
 		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, fmt.Sprintf(template, args...))
