@@ -71,12 +71,20 @@ func (l *Logger) Close() {
 	l.slsProducer.Close(100000)
 }
 
-func (l *Logger) Event(ctx context.Context, event Event) {
-	if l.slsProducer != nil && l.enabler.Enabled(zapcore.InfoLevel) {
-		l.slsProducer.SendLog(ctx, zapcore.InfoLevel, event.Short())
+func (l *Logger) Info(ctx context.Context, event Event) {
+	l.output(ctx, event, zap.InfoLevel, l.Logger.Info)
+}
+
+func (l *Logger) Error(ctx context.Context, event Event) {
+	l.output(ctx, event, zap.ErrorLevel, l.Logger.Error)
+}
+
+func (l Logger) output(ctx context.Context, event Event, level zapcore.Level, fn func(string, ...zap.Field)) {
+	if l.slsProducer != nil && l.enabler.Enabled(level) {
+		l.slsProducer.SendLog(ctx, zap.InfoLevel, event.Short())
 	}
-	if l.Logger.Level().Enabled(zapcore.DebugLevel) {
-		l.Info(event.Long())
+	if l.Logger.Level().Enabled(level) {
+		fn(event.Long())
 	}
 }
 
@@ -106,26 +114,6 @@ func (l *Logger) Errorf(ctx context.Context, template string, args ...any) {
 		l.slsProducer.SendLog(ctx, zapcore.ErrorLevel, fmt.Sprintf(template, args...))
 	}
 	l.Sugar().Errorf(template, args...)
-}
-
-func (l *Logger) Debug(template string, args ...any) {
-	l.Sugar().Debugf(template, args...)
-}
-
-func (l *Logger) Warn(template string, args ...any) {
-	l.Sugar().Warnf(template, args...)
-}
-
-func (l *Logger) Info(template string, args ...any) {
-	l.Sugar().Infof(template, args...)
-}
-
-func (l *Logger) Error(err error) {
-	l.Sugar().Error(err.Error())
-}
-
-func (l *Logger) Panic(template string, args ...any) {
-	l.Sugar().Panicf(template, args...)
 }
 
 func (l *Logger) cores(cs ...zapcore.Core) zapcore.Core {
