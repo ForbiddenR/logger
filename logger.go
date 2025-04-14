@@ -71,6 +71,14 @@ func (l *Logger) Close() {
 	l.slsProducer.Close(100000)
 }
 
+func (l *Logger) Debug(template string, args ...any) {
+	if len(args) == 0 {
+		l.Logger.Debug(template)
+		return
+	}
+	l.Logger.Debug(fmt.Sprintf(template, args...))
+}
+
 func (l *Logger) Info(template string, args ...any) {
 	if len(args) == 0 {
 		l.Logger.Info(template)
