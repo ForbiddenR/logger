@@ -114,6 +114,13 @@ func (l *Logger) Infof(ctx context.Context, template string, args ...any) {
 	l.Sugar().Debugf(template, args...)
 }
 
+func (l *Logger) Warnf(ctx context.Context, template string, args ...any) {
+	if l.slsProducer != nil && l.enabler.Enabled(zapcore.WarnLevel) {
+		l.slsProducer.SendLog(ctx, zapcore.WarnLevel, fmt.Sprintf(template, args...))
+	}
+	l.Sugar().Warnf(template, args...)
+}
+
 func (l *Logger) Errorf(ctx context.Context, template string, args ...any) {
 	if l.slsProducer != nil && l.enabler.Enabled(zapcore.ErrorLevel) {
 		l.slsProducer.SendLog(ctx, zapcore.ErrorLevel, fmt.Sprintf(template, args...))
