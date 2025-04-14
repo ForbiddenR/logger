@@ -71,6 +71,10 @@ func (l *Logger) Close() {
 	l.slsProducer.Close(100000)
 }
 
+func (l *Logger) Infos(template string, args ...any) {
+	l.Sugar().Infof(template, args...)
+}
+
 func (l *Logger) Info(ctx context.Context, event Event) {
 	l.output(ctx, event, zap.InfoLevel, l.Logger.Info)
 }
